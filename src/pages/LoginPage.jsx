@@ -1,0 +1,183 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Link,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
+import FlightTakeoffRoundedIcon from "@mui/icons-material/FlightTakeoffRounded";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
+import { FormTextField } from "../components/form";
+import { loginUser } from "../utils/auth";
+
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const [loginError, setLoginError] = useState("");
+
+  const {
+    control,
+    handleSubmit,
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    setLoginError("");
+
+    const result = loginUser(data);
+
+    if (!result.success) {
+      setLoginError(result.message);
+      return;
+    }
+
+    navigate("/trip-options", { replace: true });
+  };
+
+  return (
+    <Box className="auth-page">
+      <Box className="auth-glow glow-one" />
+      <Box className="auth-glow glow-two" />
+
+      <Paper className="auth-card" elevation={0}>
+        <Box className="auth-brand-row">
+          <Box className="brand-icon">
+            <FlightTakeoffRoundedIcon fontSize="large" />
+          </Box>
+
+          <Box>
+            <Typography className="auth-brand-name">
+              SkyBook
+            </Typography>
+
+            <Typography
+              variant="caption"
+              color="text.secondary"
+            >
+              Smart flight reservation
+            </Typography>
+          </Box>
+        </Box>
+
+        <Chip
+          icon={<PublicRoundedIcon />}
+          label="Your next journey starts here"
+          className="welcome-chip"
+        />
+
+        <Typography
+          variant="h4"
+          fontWeight={900}
+          sx={{ mt: 2.5 }}
+        >
+          Welcome back
+        </Typography>
+
+        <Typography
+          color="text.secondary"
+          sx={{ mt: 1, mb: 3.5, lineHeight: 1.7 }}
+        >
+          Log in to choose your flight type and complete your reservation.
+        </Typography>
+
+        {loginError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {loginError}
+          </Alert>
+        )}
+
+        <Box
+          component="form"
+          noValidate
+          onSubmit={handleSubmit(onSubmit)}
+          sx={{ display: "grid", gap: 2.2 }}
+        >
+          <FormTextField
+            name="email"
+            control={control}
+            label="Email Address"
+            type="email"
+            autoComplete="email"
+            rules={{
+              required: "Email address is required",
+              pattern: {
+                value: /^\S+@\S+\.\S+$/,
+                message: "Enter a valid email address",
+              },
+            }}
+          />
+
+          <FormTextField
+            name="password"
+            control={control}
+            label="Password"
+            type="password"
+            autoComplete="current-password"
+            rules={{
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password must contain at least 6 characters",
+              },
+            }}
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            size="large"
+            fullWidth
+            sx={{ mt: 0.8, py: 1.35 }}
+          >
+            Log In to Continue
+          </Button>
+        </Box>
+
+        <Divider sx={{ my: 3 }} />
+
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          justifyContent="center"
+        >
+          <LockOutlinedIcon
+            fontSize="small"
+            color="action"
+          />
+
+          <Typography variant="body2" color="text.secondary">
+            Your demo account is stored safely in this browser.
+          </Typography>
+        </Stack>
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          textAlign="center"
+          sx={{ mt: 2.5 }}
+        >
+          New to SkyBook?{" "}
+          <Link
+            component={RouterLink}
+            to="/signup"
+            fontWeight={800}
+          >
+            Create your account
+          </Link>
+        </Typography>
+      </Paper>
+    </Box>
+  );
+}
